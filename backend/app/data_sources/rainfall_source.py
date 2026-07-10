@@ -11,14 +11,14 @@ class RainfallSource(HazardDataSource):
         params = {
             "latitude": latitude,
             "longitude": longitude,
-            "daily": ["precipitation_sum"],
+            "daily": ",".join(["precipitation_sum"]),
             "timezone": "auto",
             "past_days": 7,
         }
         
         async with httpx.AsyncClient() as client:
             response = await client.get(
-                settings.OPEN_METEO_BASE_URL,
+                f"{settings.OPEN_METEO_BASE_URL}/forecast",
                 params=params
             )
             response.raise_for_status()
