@@ -2,6 +2,7 @@ from typing import Optional
 from app.data_sources.base import HazardReadingDTO
 from app.models.risk_threshold import RiskThreshold
 from app.risk_engine.base import RiskCalculator, RiskClassificationResult
+from app.schemas.risk_threshold import RiskThreshold as RiskThresholdSchema
 
 
 class ThresholdCalculator(RiskCalculator):
@@ -57,7 +58,7 @@ class ThresholdCalculator(RiskCalculator):
         return RiskClassificationResult(
             risk_level=selected_threshold.risk_level,
             current_value=current_value,
-            threshold_used=selected_threshold,
+            threshold_used=RiskThresholdSchema.model_validate(selected_threshold),
             explanation=(
                 f"Latest value {current_value} falls into {selected_threshold.risk_level} risk "
                 f"range [{selected_threshold.min_value}, {selected_threshold.max_value}]"
