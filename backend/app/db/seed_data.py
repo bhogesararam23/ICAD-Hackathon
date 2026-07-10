@@ -16,9 +16,6 @@ async def seed_data():
     async_session = async_sessionmaker(engine, expire_on_commit=False)
 
     async with async_session() as session:
-        # Drop tables for dev (temporary!)
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.drop_all)
         # Create tables if they don't exist (optional, for dev)
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
