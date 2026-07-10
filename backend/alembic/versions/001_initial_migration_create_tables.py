@@ -28,7 +28,7 @@ def upgrade() -> None:
     sa.Column('latitude', sa.Float(), nullable=False),
     sa.Column('longitude', sa.Float(), nullable=False),
     sa.Column('region', sa.String(), nullable=True),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('hazard_readings',
@@ -37,8 +37,8 @@ def upgrade() -> None:
     sa.Column('hazard_type', sa.String(), nullable=False),
     sa.Column('value', sa.Float(), nullable=False),
     sa.Column('unit', sa.String(), nullable=False),
-    sa.Column('recorded_at', sa.DateTime(), nullable=False),
-    sa.Column('fetched_at', sa.DateTime(), nullable=False),
+    sa.Column('recorded_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('fetched_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('source', sa.String(), nullable=False),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.PrimaryKeyConstraint('id')
@@ -61,7 +61,7 @@ def upgrade() -> None:
     sa.Column('risk_level', sa.String(), nullable=False),
     sa.Column('generated_message', sa.Text(), nullable=False),
     sa.Column('raw_context', postgresql.JSONB(astext_type=sa.Text()), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

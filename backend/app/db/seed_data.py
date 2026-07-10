@@ -1,11 +1,13 @@
 import asyncio
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from app.models.base import Base
 from app.models.location import Location
 from app.models.risk_threshold import RiskThreshold
+from app.models.hazard_reading import HazardReading
+from app.models.alert import Alert
 from app.config import settings
 
 
@@ -14,6 +16,9 @@ async def seed_data():
     async_session = async_sessionmaker(engine, expire_on_commit=False)
 
     async with async_session() as session:
+        # Drop tables for dev (temporary!)
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
         # Create tables if they don't exist (optional, for dev)
         async with engine.begin() as conn:
             await conn.run_sync(Base.metadata.create_all)
@@ -26,7 +31,7 @@ async def seed_data():
                 latitude=2.0469,
                 longitude=45.3182,
                 region="Hirshabelle",
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             ),
             Location(
                 name="Addis Ababa",
@@ -34,7 +39,7 @@ async def seed_data():
                 latitude=9.0054,
                 longitude=38.7636,
                 region="Addis Ababa",
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             ),
             Location(
                 name="Nairobi",
@@ -42,7 +47,7 @@ async def seed_data():
                 latitude=-1.286389,
                 longitude=36.817223,
                 region="Nairobi County",
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             ),
             Location(
                 name="Khartoum",
@@ -50,7 +55,7 @@ async def seed_data():
                 latitude=15.5007,
                 longitude=32.5599,
                 region="Khartoum State",
-                created_at=datetime.utcnow()
+                created_at=datetime.now(UTC)
             )
         ]
 

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from typing import Any, Optional
 from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.dialects.postgresql import JSONB
@@ -15,6 +15,6 @@ class Alert(Base):
     risk_level: Mapped[str] = mapped_column(String, nullable=False)
     generated_message: Mapped[str] = mapped_column(Text, nullable=False)
     raw_context: Mapped[Any] = mapped_column(JSONB, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
 
     location: Mapped["Location"] = relationship("Location", back_populates="alerts")
