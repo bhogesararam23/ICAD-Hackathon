@@ -1,5 +1,5 @@
 from pathlib import Path
-from app.ai_alerts.client import AnthropicClient
+from app.ai_alerts.client import GeminiClient
 from app.models.location import Location
 from app.risk_engine.base import RiskClassificationResult
 from app.data_sources.base import HazardReadingDTO
@@ -13,7 +13,7 @@ with open(PROMPT_TEMPLATE_PATH, "r", encoding="utf-8") as f:
 
 class AlertGenerator:
     def __init__(self):
-        self.client = AnthropicClient()
+        self.client = GeminiClient()
 
     async def generate_alert(
         self,
@@ -22,7 +22,7 @@ class AlertGenerator:
         risk_result: RiskClassificationResult,
         latest_reading: HazardReadingDTO
     ) -> tuple[str, dict]:
-        """Generate an AI alert using the template and Anthropic API.
+        """Generate an AI alert using the template and Gemini API.
         
         Args:
             location: The Location model instance
@@ -44,7 +44,7 @@ class AlertGenerator:
             explanation=risk_result.explanation
         )
 
-        # Call the Anthropic API
+        # Call the Gemini API
         alert_text = await self.client.generate_text(prompt)
 
         # Prepare the raw context dict for storage

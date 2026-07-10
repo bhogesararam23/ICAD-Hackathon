@@ -1,18 +1,15 @@
-from anthropic import AsyncAnthropic
+from google import genai
 from app.config import settings
 
 
-class AnthropicClient:
+class GeminiClient:
     def __init__(self):
-        self.client = AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-        self.model = settings.ANTHROPIC_MODEL
+        self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
+        self.model = settings.GEMINI_MODEL
 
     async def generate_text(self, prompt: str) -> str:
-        message = await self.client.messages.create(
+        response = await self.client.aio.models.generate_content(
             model=self.model,
-            max_tokens=1024,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
+            contents=prompt
         )
-        return message.content[0].text
+        return response.text

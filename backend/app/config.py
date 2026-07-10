@@ -4,8 +4,8 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     DATABASE_URL: str
-    ANTHROPIC_API_KEY: str
-    ANTHROPIC_MODEL: str = "claude-3-5-sonnet-20241022"
+    GEMINI_API_KEY: str
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     OPEN_METEO_BASE_URL: str
     GLOFAS_API_KEY: str | None = None
     ENVIRONMENT: str = "dev"
