@@ -1,0 +1,9 @@
+Write a short, plain-language, actionable early warning alert for residents of {location_name}, {country}. Use a calm and clear tone, 3-4 sentences. No jargon. End with one concrete recommended action.
+
+Context:
+- Hazard type: {hazard_type}
+- Current risk level: {risk_level}
+- Current value: {current_value} {unit}
+- Why this level was chosen: {explanation}
+
+Alert:
