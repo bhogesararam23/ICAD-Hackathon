@@ -1,105 +1,173 @@
 # IGAD Early Warning System
 
-> An early-stage hackathon project for monitoring environmental hazards, evaluating location-level risk, and generating actionable early-warning alerts.
+> A hackathon project for environmental hazard monitoring, risk evaluation and early warning generation
 
-## Overview
+This project is being built around one main idea
 
-**IGAD Early Warning System** is a full-stack prototype built around a simple pipeline:
+**take environmental data → understand the risk → explain it clearly → show it in one place → eventually send warnings when they actually matter**
 
-**data sources → hazard readings → risk evaluation → AI-assisted alerts → web dashboard**
+Right now this is still a prototype and we are building the pieces step by step. The goal is not to pretend that it is already a complete disaster management platform. The goal is to get the core system working properly first and then make it reliable enough for real use.
 
-The repository currently contains the foundations of this pipeline: a FastAPI backend, PostgreSQL/SQLAlchemy persistence, Alembic migrations, data-source modules, a risk engine, AI alert generation, and a React + Vite frontend.
+## What this project is
 
-The project is under active development. Some modules are foundations or early implementations, so the roadmap below clearly separates the current codebase from planned capabilities.
+The IGAD Early Warning System is a full stack early warning prototype.
 
-## Current Status
+The current system has a FastAPI backend, PostgreSQL database layer, hazard data sources, a risk engine, Gemini based alert generation and a React dashboard.
 
-### Implemented foundations
+At the moment the main hazard foundations are around
 
-- FastAPI backend with CORS configuration
-- API routers for locations, hazards, and alerts
-- SQLAlchemy data models and Pydantic schemas
-- PostgreSQL support through asyncpg
-- Alembic migration setup
-- Dedicated external data-source layer
-- Risk-engine structure with:
-  - threshold-based risk calculation
-  - flood calculation module
-  - drought calculation module
-  - extensible calculator registry
-- AI alert module using Google Gemini
-- React 18 frontend with Vite
-- React Router and Recharts
-- Tailwind CSS setup
-- Environment-variable based configuration
-- Docker Compose configuration for backend services
+- rainfall
+- river discharge
+- flood risk through river discharge thresholds
+- drought risk through rainfall thresholds
 
-### Still in development
+The architecture is intentionally modular so more hazards and better models can be added later without rebuilding everything.
 
-The repository is not yet a production-ready early-warning platform. Automated ingestion, extensive validation, forecasting, calibration, historical analytics, user management, notification delivery, observability, security hardening, and deployment automation are part of the roadmap.
+## Current status
+
+### Working / implemented
+
+- FastAPI backend
+- CORS configuration
+- Location API
+- Hazard readings API
+- Alerts API
+- PostgreSQL with SQLAlchemy
+- Async database support with asyncpg
+- Alembic migrations
+- Seed data structure
+- Common hazard reading format
+- Separate data source layer
+- Rainfall data source
+- River discharge data source foundation
+- Risk engine abstraction
+- Threshold based risk calculation
+- Flood calculator
+- Drought calculator
+- Risk calculator registry
+- Gemini client
+- AI alert generation flow
+- React frontend with Vite
+- Location selection
+- Risk level display
+- Alert cards
+- Risk trend chart foundation
+- Tailwind CSS
+- Environment based configuration
+- Docker Compose setup for PostgreSQL
+
+### What is not finished yet
+
+There are still quite a few things that need to be built before this can be considered a proper operational early warning system.
+
+For example
+
+- continuous automated data ingestion
+- stronger validation of external data
+- historical data storage and analysis
+- better flood and drought models
+- proper forecasting
+- multi hazard risk
+- real time alert triggering
+- notification delivery
+- authentication and user roles
+- proper monitoring and observability
+- production deployment
+- security hardening
+- proper evaluation against historical events
+
+So if you are looking at this repository right now, it is better to think of it as a **working hackathon foundation** rather than a finished platform.
+
+## How it works
+
+The basic idea currently looks like this
+
+```text
+External Data Sources
+        ↓
+Hazard Readings
+        ↓
+Risk Engine
+        ↓
+Risk Classification
+        ↓
+AI Alert Generation
+        ↓
+PostgreSQL
+        ↓
+React Dashboard
+```
+
+The important part here is that Gemini is not supposed to decide whether a hazard exists.
+
+The data source and risk engine should determine the actual risk.
+
+AI is mainly used to turn the structured result into a warning that a person can understand.
+
+This separation is important because an early warning system should not depend on a language model guessing the underlying hazard level.
 
 ## Architecture
 
 ```text
-┌──────────────────────┐
-│ External Data Sources│
-│ Open-Meteo / GLOFAS  │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│ FastAPI Backend      │
-│ API + Services       │
-└──────────┬───────────┘
-           │
-     ┌─────┴─────┐
-     ▼           ▼
-┌──────────┐ ┌─────────────┐
-│ Risk     │ │ AI Alerts   │
-│ Engine   │ │ Gemini      │
-└────┬─────┘ └──────┬──────┘
-     │              │
-     └──────┬───────┘
-            ▼
-┌──────────────────────┐
-│ PostgreSQL Database  │
-└──────────┬───────────┘
-           │
-           ▼
-┌──────────────────────┐
-│ React Dashboard      │
-│ Vite + Tailwind      │
-└──────────────────────┘
+┌─────────────────────────┐
+│   External Data Sources │
+│ Rainfall / River Data   │
+└────────────┬────────────┘
+             │
+             ▼
+┌─────────────────────────┐
+│      FastAPI Backend    │
+│     APIs + Services     │
+└────────────┬────────────┘
+             │
+       ┌─────┴─────┐
+       ▼           ▼
+┌────────────┐ ┌─────────────┐
+│ Risk Engine│ │ AI Alerts   │
+│            │ │ Gemini      │
+└─────┬──────┘ └──────┬──────┘
+      │               │
+      └───────┬───────┘
+              ▼
+     ┌──────────────────┐
+     │    PostgreSQL    │
+     └────────┬─────────┘
+              │
+              ▼
+     ┌──────────────────┐
+     │ React Dashboard  │
+     │ Vite + Tailwind  │
+     └──────────────────┘
 ```
 
-## Repository Structure
+## Repository structure
 
 ```text
 ICAD-Hackathon/
 ├── backend/
 │   ├── app/
-│   │   ├── ai_alerts/       # Gemini client and alert generation
-│   │   ├── api/             # FastAPI routes
-│   │   ├── data_sources/    # External data integrations
-│   │   ├── db/              # Database layer
-│   │   ├── models/          # SQLAlchemy models
-│   │   ├── risk_engine/     # Hazard/risk calculations
-│   │   ├── schemas/         # Pydantic schemas
-│   │   ├── services/        # Application services
-│   │   ├── config.py        # Environment configuration
-│   │   └── main.py          # FastAPI entry point
-│   ├── alembic/             # Database migrations
+│   │   ├── ai_alerts/        # Gemini client and alert generation
+│   │   ├── api/              # FastAPI routes
+│   │   ├── data_sources/     # External hazard data sources
+│   │   ├── db/               # Database and seed logic
+│   │   ├── models/           # SQLAlchemy models
+│   │   ├── risk_engine/      # Risk calculation logic
+│   │   ├── schemas/          # Pydantic schemas
+│   │   ├── services/         # Application services and pipeline
+│   │   ├── config.py         # Environment configuration
+│   │   └── main.py           # FastAPI entry point
+│   ├── alembic/              # Database migrations
 │   ├── config/
-│   │   └── thresholds.yaml  # Risk-threshold configuration
+│   │   └── thresholds.yaml   # Risk thresholds
 │   ├── .env.sample
 │   ├── docker-compose.yml
 │   └── requirements.txt
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── api/             # Frontend API layer
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/           # Page-level UI
+│   │   ├── api/              # API client
+│   │   ├── components/       # Reusable UI components
+│   │   ├── pages/            # Application pages
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   ├── index.html
@@ -112,9 +180,10 @@ ICAD-Hackathon/
 └── README.md
 ```
 
-## Tech Stack
+## Tech stack
 
 ### Backend
+
 - Python
 - FastAPI
 - Uvicorn
@@ -126,70 +195,73 @@ ICAD-Hackathon/
 - HTTPX
 - PyYAML
 
-### AI & Data
+### AI and data
+
 - Google Gemini API
 - Open-Meteo
 - GLOFAS integration point
+- Threshold based risk calculations
 
 ### Frontend
+
 - React 18
 - Vite
 - React Router
 - Recharts
 - Tailwind CSS
 
-## Getting Started
+## Getting started
 
-### Prerequisites
+### Requirements
 
-Install:
+You will need
 
 - Python 3.10+
 - Node.js 18+
 - npm
 - PostgreSQL
 - Git
-- Docker (recommended for local database setup)
+- Docker is recommended
 
-### 1. Clone
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/bhogesararam23/ICAD-Hackathon.git
 cd ICAD-Hackathon
 ```
 
-### 2. Configure the backend
+### 2. Setup the backend
 
 ```bash
 cd backend
 python -m venv .venv
 ```
 
-Activate the environment.
+Linux / macOS
 
-**Linux/macOS**
 ```bash
 source .venv/bin/activate
 ```
 
-**Windows**
+Windows
+
 ```powershell
-.venv\Scripts\activate
+.venv\\Scripts\\activate
 ```
 
-Install dependencies:
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Create the environment file:
+Create the environment file
 
 ```bash
 cp .env.sample .env
 ```
 
-Set valid values for the required variables in `backend/.env`:
+Then add the required values to `backend/.env`
 
 ```env
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/igad_early_warning
@@ -200,9 +272,11 @@ GLOFAS_API_KEY=your_glofas_api_key_here
 ENVIRONMENT=dev
 ```
 
+Do not commit the real `.env` file or any API keys.
+
 ### 3. Start PostgreSQL
 
-From the repository root:
+From the repository root
 
 ```bash
 docker compose -f backend/docker-compose.yml up -d
@@ -210,7 +284,7 @@ docker compose -f backend/docker-compose.yml up -d
 
 ### 4. Run migrations
 
-From `backend/`:
+From `backend/`
 
 ```bash
 alembic upgrade head
@@ -218,15 +292,19 @@ alembic upgrade head
 
 ### 5. Start the backend
 
-From `backend/`:
-
 ```bash
 uvicorn app.main:app --reload
 ```
 
+The backend will normally be available at
+
+```text
+http://localhost:8000
+```
+
 ### 6. Start the frontend
 
-Open another terminal:
+Open another terminal
 
 ```bash
 cd frontend
@@ -234,7 +312,11 @@ npm install
 npm run dev
 ```
 
-Vite will print the local URL, normally `http://localhost:5173`.
+Vite will normally start the frontend at
+
+```text
+http://localhost:5173
+```
 
 ### 7. Build the frontend
 
@@ -243,172 +325,256 @@ cd frontend
 npm run build
 ```
 
-## Core Modules
+## Main modules
 
-### Risk Engine
+### Data sources
 
-The backend contains an extensible risk-engine structure with a registry and hazard-specific calculators. The current repository includes flood, drought, and threshold-based calculation foundations.
+The data source layer keeps external APIs separate from the rest of the application.
 
-### AI Alerts
+Currently the repository has foundations for rainfall and river discharge data.
 
-The `ai_alerts` module contains a Gemini client and alert-generation workflow. Its intended role is to turn structured hazard and risk information into understandable warning messages.
+The plan is to keep adding sources without making the rest of the backend depend directly on a specific provider.
 
-AI should remain downstream of deterministic data and risk calculations and should not be treated as the source of hazard measurements.
+### Risk engine
 
-### Data Sources
+The risk engine is designed around separate calculators for different hazards.
 
-A dedicated data-source layer isolates external APIs from application logic. Current configuration includes Open-Meteo and a GLOFAS integration point.
+Currently there are foundations for
 
-### API
+- rainfall based drought risk
+- river discharge based flood risk
+- generic threshold based classification
 
-The FastAPI application currently includes router groups for:
+The calculator registry makes it possible to add more hazard calculators later.
 
-- Locations
-- Hazards
-- Alerts
+### AI alerts
 
-The API contract is still evolving.
+The AI alert layer uses Gemini to turn structured risk information into a short warning.
+
+The model gets information such as
+
+- location
+- hazard type
+- risk level
+- current value
+- explanation for the risk level
+
+The intention is to keep the generated message understandable and actionable.
+
+Again the AI layer is downstream of the actual risk calculation.
+
+### Dashboard
+
+The React frontend currently provides the basic dashboard structure for selecting locations, viewing risk information, alerts and trend data.
+
+Some parts of the dashboard are still using demo or mock data and will be connected to the full historical and real time pipeline as the project develops.
 
 ## Roadmap
 
-The roadmap is deliberately ordered as:
+This is the part of the project that is most likely to change as we learn more during development.
 
-**prototype hardening → reliable intelligence → real-time warning → operational scale**
+The current direction is
 
-### Phase 0 — Prototype Hardening
-**Status: In progress**
+**working prototype → reliable data pipeline → better risk intelligence → real time warnings → operational system → research and scale**
 
-- [x] Establish frontend/backend structure
-- [x] Create FastAPI application
-- [x] Add PostgreSQL/SQLAlchemy foundation
-- [x] Add Alembic migration framework
-- [x] Create risk-engine abstraction
-- [x] Add initial flood and drought calculator modules
-- [x] Add Gemini alert-generation foundation
-- [x] Create initial React dashboard
-- [ ] Add backend unit/integration tests
-- [ ] Add frontend component tests
-- [ ] Add API examples and documentation
-- [ ] Add consistent validation/error handling
-- [ ] Add seed/demo data
+### Phase 0 — Make the current prototype solid
 
-### Phase 1 — Reliable Hazard Data Pipeline
-**Status: Planned**
+**Status: in progress**
 
-- [ ] Build scheduled data ingestion
-- [ ] Normalize external data into a common hazard-reading schema
-- [ ] Track source freshness and data quality
-- [ ] Add retries, timeouts, and rate-limit handling
-- [ ] Store historical observations
-- [ ] Validate incoming measurements before risk calculation
+- [x] Backend and frontend structure
+- [x] FastAPI application
+- [x] PostgreSQL and SQLAlchemy setup
+- [x] Alembic migrations
+- [x] Data source abstraction
+- [x] Rainfall source foundation
+- [x] River discharge source foundation
+- [x] Risk engine abstraction
+- [x] Flood calculator foundation
+- [x] Drought calculator foundation
+- [x] Gemini alert generation foundation
+- [x] Initial React dashboard
+- [ ] Add proper backend tests
+- [ ] Add frontend tests
+- [ ] Improve API validation and error handling
+- [ ] Add better demo/seed data
+- [ ] Document API behaviour properly
+- [ ] Remove remaining demo/mock dashboard data
+
+### Phase 1 — Build a reliable data pipeline
+
+**Status: next**
+
+- [ ] Scheduled data ingestion
+- [ ] Common schema for all hazard readings
+- [ ] Data freshness tracking
+- [ ] Data quality checks
+- [ ] Retries and timeout handling
+- [ ] Rate limit handling
+- [ ] Historical observations
+- [ ] Better external source integration
 - [ ] Complete GLOFAS integration
-- [ ] Add additional authoritative environmental sources
+- [ ] Source level logging
 
-### Phase 2 — Risk Intelligence
-**Status: Planned**
+The main goal here is simple
 
-- [ ] Make thresholds configurable per hazard and region
-- [ ] Add trend and time-window signals
-- [ ] Add multi-hazard risk aggregation
-- [ ] Add confidence/data-quality indicators
-- [ ] Calibrate thresholds against historical events
-- [ ] Add forecasting models where sufficient data exists
-- [ ] Produce explainable risk factors for every warning
+**the system should be able to keep getting data without someone manually running everything**
 
-### Phase 3 — Early-Warning Dashboard
-**Status: Planned**
+### Phase 2 — Improve risk intelligence
 
-- [ ] Build complete location-centric dashboard
-- [ ] Add hazard maps
-- [ ] Add historical risk timelines
-- [ ] Add alert history and acknowledgement
-- [ ] Add location subscriptions
-- [ ] Add severity, confidence, and expiry metadata
-- [ ] Add multilingual warnings
-- [ ] Improve accessibility
+**Status: planned**
 
-### Phase 4 — Real-Time Alert Delivery
-**Status: Planned**
+- [ ] Region specific thresholds
+- [ ] Better flood risk calculation
+- [ ] Better drought indicators
+- [ ] Trend based risk signals
+- [ ] Multi hazard risk
+- [ ] Confidence and data quality indicators
+- [ ] Historical calibration
+- [ ] Forecasting where enough data exists
+- [ ] Explain why every risk level was generated
+- [ ] Compare models against simple baselines
 
-- [ ] Add background job/scheduling infrastructure
-- [ ] Trigger alerts automatically from risk conditions
-- [ ] Add email delivery
-- [ ] Add SMS/WhatsApp/push integrations
-- [ ] Add alert deduplication and escalation
-- [ ] Add alert expiry/cancellation workflows
-- [ ] Track delivery status
+This phase is important because a threshold alone is not enough for a serious early warning system.
 
-### Phase 5 — Operational Platform
-**Status: Planned**
+### Phase 3 — Build the actual early warning dashboard
 
-- [ ] Add authentication and role-based access
-- [ ] Add operator/admin workflows
-- [ ] Add structured logging, metrics, and observability
-- [ ] Add alert-decision audit trails
-- [ ] Add CI/CD
-- [ ] Containerize production deployment
-- [ ] Add database backup and migration procedures
-- [ ] Add secrets management
-- [ ] Add performance/load testing
-- [ ] Add security hardening
+**Status: planned**
 
-### Phase 6 — Research & Scale
-**Status: Planned**
+- [ ] Location centric dashboard
+- [ ] Hazard maps
+- [ ] Historical risk timeline
+- [ ] Alert history
+- [ ] Alert acknowledgement
+- [ ] Location subscriptions
+- [ ] Severity metadata
+- [ ] Confidence metadata
+- [ ] Alert expiry
+- [ ] Multilingual warnings
+- [ ] Better mobile support
+- [ ] Accessibility improvements
 
-- [ ] Benchmark forecasting approaches against baselines
-- [ ] Add model/version tracking
-- [ ] Support region-specific models
-- [ ] Investigate satellite and remote-sensing inputs
-- [ ] Add environmental anomaly detection
-- [ ] Add historical-event replay/simulation
-- [ ] Measure false positives and false negatives
-- [ ] Measure warning lead time and alert usefulness
-- [ ] Evaluate larger-scale deployment
+### Phase 4 — Real time alert delivery
 
-## Development Principles
+**Status: planned**
 
-### Deterministic first, generative second
+- [ ] Background jobs
+- [ ] Automatic risk evaluation
+- [ ] Automatic alert triggering
+- [ ] Email alerts
+- [ ] SMS integration
+- [ ] WhatsApp integration
+- [ ] Push notifications
+- [ ] Alert deduplication
+- [ ] Escalation logic
+- [ ] Alert cancellation and expiry
+- [ ] Delivery status tracking
 
-Measurements and risk decisions should come from structured data, explicit thresholds, or validated models. Generative AI is intended primarily for communication and summarization.
+### Phase 5 — Production readiness
+
+**Status: planned**
+
+- [ ] Authentication
+- [ ] Role based access
+- [ ] Operator dashboard
+- [ ] Admin workflows
+- [ ] Structured logging
+- [ ] Metrics
+- [ ] Observability
+- [ ] CI/CD
+- [ ] Production containers
+- [ ] Database backups
+- [ ] Migration procedures
+- [ ] Secrets management
+- [ ] Load testing
+- [ ] Security hardening
+
+### Phase 6 — Research and scale
+
+**Status: longer term**
+
+- [ ] Benchmark forecasting methods
+- [ ] Model version tracking
+- [ ] Region specific models
+- [ ] Satellite and remote sensing inputs
+- [ ] Environmental anomaly detection
+- [ ] Historical event replay
+- [ ] Simulation environment
+- [ ] False positive / false negative evaluation
+- [ ] Warning lead time evaluation
+- [ ] Alert usefulness evaluation
+- [ ] Larger scale deployment experiments
+
+## Development principles
+
+### Deterministic first
+
+The actual hazard measurement and risk classification should come from data, thresholds or validated models.
+
+AI should mainly help with communication.
 
 ### Modular by hazard
 
-A new hazard should be addable through independent data adapters and calculators without rewriting the whole system.
+Adding a new hazard should not mean rewriting the whole backend.
+
+The idea is to add a data source and a calculator and then connect them through the existing registry and pipeline.
 
 ### Explainable warnings
 
-Each warning should be traceable to:
+A warning should eventually be traceable back to
 
-1. source data,
-2. evaluated hazard/risk,
-3. threshold or model condition,
-4. generated warning content.
+1. the source data
+2. the hazard reading
+3. the risk calculation
+4. the threshold or model condition
+5. the final warning shown to the user
 
 ### Reliability before feature count
 
-Testing, validation, observability, and measurable warning quality are core project requirements, not post-hackathon cleanup.
+There is no point having 20 different features if the basic warning itself cannot be trusted.
+
+So testing, validation and measuring the actual quality of warnings will stay important as the project grows.
+
+## Current limitations
+
+Being transparent about this because this is still a hackathon project
+
+- The project is not production ready
+- Some integrations are still foundations rather than complete integrations
+- Some frontend visualizations still use mock/demo data
+- Risk thresholds are currently rule based
+- Forecasting is not implemented yet
+- Automated continuous ingestion is not implemented yet
+- Real time notification delivery is not implemented yet
+- There is no complete authentication system yet
+- There is no proper large scale historical validation yet
+- The API and data contracts can still change
+
+These are not hidden parts of the project. They are exactly what the roadmap is trying to solve.
 
 ## Contributing
 
-The project is under active development.
+This project is still evolving so changes are expected.
 
-Recommended workflow:
+A simple workflow is
 
 ```text
-Issue → Branch → Implementation → Tests → Pull Request → Review → Merge
+Issue → Branch → Build → Test → Pull Request → Review → Merge
 ```
 
-Keep changes modular and document changes to:
+When adding something new, try to keep it modular and update the README when the actual project status changes.
 
-- data-source contracts
-- database models
+For larger changes it is useful to document changes to
+
+- data sources
+- risk calculations
 - thresholds
+- database models
 - API schemas
 - alert behaviour
 
 ## Security
 
-Never commit:
+Never commit
 
 - API keys
 - database passwords
@@ -416,12 +582,18 @@ Never commit:
 - private tokens
 - local `.env` files
 
-Use `backend/.env.sample` as the configuration template.
+Use `backend/.env.sample` as the template for local configuration.
 
-## Project Status
+## Project status
 
-This repository is an evolving hackathon prototype. The **Implemented foundations** section describes code that exists in the current repository; items in the roadmap are future work and are not claimed as completed.
+**Current status: active hackathon prototype**
+
+The repository is being built incrementally. The checkboxes above are meant to reflect what is actually implemented and what is still planned.
+
+If something is marked planned, it should not be assumed to already work.
 
 ## License
 
-No license file is currently present. Add an appropriate license before distributing the project for reuse.
+No license file is currently present in the repository.
+
+A license should be added before treating this as a reusable open source project.
